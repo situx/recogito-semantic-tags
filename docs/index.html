@@ -31,7 +31,7 @@
     <div id="content" class="plaintext">
 
       <h1>
-        sources manuscrites
+        sources manuscrites dumu lugal
       </h1>
       <h2>
         >FRANCE
@@ -694,6 +694,7 @@
           dataSources: [
             'Wikidata',
 			'WikidataLexeme',
+			{ source: 'WikidataLexeme', name: 'WD Lexeme Wordform', wordformmode:true },
             { source: 'Wikidata', name: 'WD People', filter: 'Q5' }, // "human"
             // { source: 'Wikidata', name: 'WD Works', filter: 'Q7725634' }, // "literary works"
             'VIAF',
@@ -702,7 +703,7 @@
             'BNF'
           ],
           language: 'fr', // Search language (default 'en', 'auto' uses browser locale)
-          availableLanguages: [ 'en', 'fr', 'es' ],
+          availableLanguages: [ 'en', 'fr', 'es', 'sux' ],
           limit: 20,      // Search result page length (default 20)
         };
 
