@@ -10,24 +10,53 @@ export default class WikidataLexeme {
 
   query(query, globalConfig) {
 	if(this.config?.normpattern){
-		var target=""
-		if(this.config?.targetpattern){
-			target=this.config?.targetpattern
-		}
-		try{
-			query=query.replaceAll(this.config?.normpattern,target)
-		}catch(error){
-			print(error)
+		console.log(this.config?.normpattern)
+		if(typeof this.config?.normpattern === 'function'){
+			console.log(this.config?.normpattern)
+			try{
+				query=this.config?.normpattern(query)
+			}catch(error){
+				console.log(error)
+			}			
+		}else{
+			var target=""
+			if(this.config?.targetpattern){
+				target=this.config?.targetpattern
+			}
+			try{
+				query=query.replaceAll(this.config?.normpattern,target)
+			}catch(error){
+				console.log(error)
+			}		
 		}
 	}
+	console.log(query)
     return this.queryFiltered(query, globalConfig)
   }
 
   queryFiltered(query, globalConfig) {
     const lang = globalConfig.language || 'en';
     const limit = globalConfig.limit || 20;
-	
-    const sparql = `
+	if(this.config?.wordformmode){
+	    var sparql = `
+      SELECT DISTINCT ?l ?lf ?senseval ?senselabel ?lfgram ?gflabel (GROUP_CONCAT(DISTINCT ?lemmaa; separator=" / ") as ?lemma) WHERE {
+		BIND(LCASE("${query}"@${lang}) as ?term)
+		{?lang wdt:P218 "${lang}" . } UNION {?lang wdt:P219 "${lang}" . }
+        ?l rdf:type ontolex:LexicalEntry ;
+           dct:language ?lang ;
+		   wikibase:lemma ?lemmaa;
+           ontolex:lexicalForm ?lf .
+		?lf ontolex:representation ?rep .
+        ?lf wikibase:grammaticalFeature ?lfgram . ?lfgram rdfs:label ?gflabel . FILTER((LANG(?gflabel))= "en")
+        OPTIONAL {?l ontolex:sense ?sense . ?sense wdt:P5137 ?senseval . OPTIONAL { ?senseval rdfs:label ?senselabel . FILTER((LANG(?senselabel))= "en") }}        
+		FILTER(str(?rep)=lcase("${query}"))       
+      }
+	  GROUP BY ?l ?lf ?senseval ?senselabel ?lfgram ?gflabel
+	  ORDER BY ?l ?lfgram ?sense ?senselabel 
+      LIMIT ${limit}
+    `;
+	}else{
+	    var sparql = `
       SELECT DISTINCT ?l ?lf ?senseval ?senselabel ?lfgram ?gflabel (GROUP_CONCAT(DISTINCT ?lemmaa; separator=" / ") as ?lemma) WHERE {
 		BIND(LCASE("${query}"@${lang}) as ?term)
 		{?lang wdt:P218 "${lang}" . } UNION {?lang wdt:P219 "${lang}" . }
@@ -37,14 +66,15 @@ export default class WikidataLexeme {
            ontolex:lexicalForm ?lf .
 		?lf ontolex:representation ?rep .
         OPTIONAL {?lf wikibase:grammaticalFeature ?lfgram . ?lfgram rdfs:label ?gflabel . FILTER((LANG(?gflabel))= "en")}
-        OPTIONAL {?l ontolex:sense ?sense . ?sense wdt:P5137 ?senseval . OPTIONAL { ?senseval rdfs:label ?senselabel . FILTER((LANG(?senselabel))= "en") }}        
+        ?l ontolex:sense ?sense . ?sense wdt:P5137 ?senseval . OPTIONAL { ?senseval rdfs:label ?senselabel . FILTER((LANG(?senselabel))= "en") }        
 		FILTER(str(?rep)=lcase("${query}"))       
       }
 	  GROUP BY ?l ?lf ?senseval ?senselabel ?lfgram ?gflabel
 	  ORDER BY ?l ?lfgram ?sense ?senselabel 
       LIMIT ${limit}
     `;
-
+	}
+	
     const url = wd.sparqlQuery(sparql);
     return fetch(url)
       .then(response => response.json())
