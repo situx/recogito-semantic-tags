@@ -1,0 +1,66 @@
+<!doctype html><html><head><meta charset="utf-8"/><title>RecogitoJS | Semantic Tags</title><link href="https://fonts.googleapis.com/css?family=Lato&display=swap" rel="stylesheet"><link href="https://cdn.jsdelivr.net/npm/@recogito/recogito-js@1.7.1/dist/recogito.min.css" rel="stylesheet"><script src="https://cdn.jsdelivr.net/npm/@recogito/recogito-js@1.7.1/dist/recogito.min.js"></script><script src="recogito-semantic-tags.min.js"></script><script src="https://code.jquery.com/jquery-3.6.1.min.js" integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous"></script><style>html, body {
+        padding:10px 20px;
+        margin:0;
+      }
+
+      h1 {
+        font-size:22px;
+        margin-top:30px;
+        margin-bottom:20px;
+      }
+
+      #content {
+        max-width:920px;
+        font-family:'Lato', sans-serif;
+        font-size:17px;
+        line-height:27px;
+      }</style><script defer="defer" src="recogito-semantic-tags.min.js"></script></head><body><div id="content" class="plaintext"><h1>CDLI Semantic Tag Test</h1>
+	  Load a CDLI Text by entering a CDLI number: P<input type="number" id="cdlinumber" value="123456"><button id="loadtext" onclick="loadText()">Load</button>
+	  <p id="cdlitext"></p>
+      <script>
+      function loadText(){
+            cdlinumber=$('#cdlinumber').val()
+            $.get( "https://cdli.mpiwg-berlin.mpg.de/artifacts/"+cdlinumber.replace("P","")+"/inscription/atf", function( data ) {
+                $('#cdlitext').html(data.replaceAll("\n","<br>"))
+                loadRecogito()
+            });
+      }
+
+      function loadRecogito(){
+        // Configuration options for the semantic tag widget
+        var widgetConfig = {
+          // List of data sources, strings for built-in connectors.
+          // Could support functions in the future, for more
+          // customization
+          dataSources: [
+            'Wikidata',
+			{ source: 'WikidataLexeme', name: 'WD Lexeme', wordformmode:false },
+			{ source: 'WikidataLexeme', name: 'WD Lexeme Regex', wordformmode:false, normpattern:/[\[\]\(\),\.#!\?\}\{]/g, targetpattern:""},
+			{ source: 'WikidataLexeme', name: 'WD Lexeme CB', wordformmode:false, normpattern:function(query){ query=query.replaceAll("š","sz"); query=query.replaceAll(/[\[\]\(\),\.#!\?\}\{]/g,""); console.log(query); return query}, targetpattern:""},
+			{ source: 'WikidataLexeme', name: 'WD Lexeme Wordform', wordformmode:true, normpattern:/[\[\]\(\),\.#!\?\}\{]/g},
+            { source: 'Wikidata', name: 'WD People', filter: 'Q5' }, // "human"
+            // { source: 'Wikidata', name: 'WD Works', filter: 'Q7725634' }, // "literary works"
+            'VIAF',
+            'JISC',
+            { source: 'DPLA', apiKey: 'e9fc393b69f416ca0b7d9c5117deafe7' },
+            'BNF'
+          ],
+          language: 'sux', // Search language (default 'en', 'auto' uses browser locale)
+          availableLanguages: [ 'sux','en', 'fr', 'es' ],
+          limit: 20,      // Search result page length (default 20)
+        };
+
+        var r = Recogito.init({
+          content: 'cdlitext',
+      	  widgets: [
+            'COMMENT',
+            recogito.SemanticTags(widgetConfig)
+          ]
+        });
+
+        r.on('createAnnotation', function(a) {
+          console.log('created', a);
+        });
+      }
+      window.onload =loadRecogito()
+      </script></div></body></html>
