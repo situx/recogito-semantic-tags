@@ -6,11 +6,36 @@ export default class WikidataLexeme {
   constructor(opt_config) {
     this.name = opt_config?.name || 'WikidataLexeme';
     this.config = opt_config;
+	this.formattingtags=["sup","sub","b","i"]
+  }
+  
+  getHTMLSelection(){
+	let selection=window.parent.document.getElementsByClassName("r6o-selection")
+	let result=""
+	for(let i=0;i<selection.length;i++){
+		if(this.formattingtags.includes(selection[i].parentNode.nodeName.toLowerCase())){
+			result+="<"+selection[i].parentNode.nodeName.toLowerCase()+">"+selection[i].textContent+"</"+selection[i].parentNode.nodeName.toLowerCase()+">"
+		}else{
+			result+=selection[i].textContent
+		}
+	}
+	return result
+  }
+  
+  getTextSelection(){
+	let selection=window.parent.document.getElementsByClassName("r6o-selection")
+	let result=""
+	for(let i=0;i<selection.length;i++){
+		result+=selection[i].textContent
+	}
+	return result
   }
 
   query(query, globalConfig) {
+	if(this.config?.matchHTML && query==this.getTextSelection()){	
+		query=this.getHTMLSelection()
+	}
 	if(this.config?.normpattern){
-		console.log(this.config?.normpattern)
 		if(typeof this.config?.normpattern === 'function'){
 			console.log(this.config?.normpattern)
 			try{
@@ -18,6 +43,18 @@ export default class WikidataLexeme {
 			}catch(error){
 				console.log(error)
 			}			
+		}else if(typeof this.config?.normpattern === 'object' && Array.isArray(this.config?.normpattern)){
+			for(let item in this.config?.normpattern){
+				if("from" in this.config?.normpattern[item] && "to" in this.config?.normpattern[item]){
+					console.log(this.config?.normpattern[item]["from"]+" - "+this.config?.normpattern[item]["to"])
+					try{
+						query=query.replaceAll(this.config?.normpattern[item]["from"],this.config?.normpattern[item]["to"])
+					}catch(error){
+						console.log(error)
+					}	
+				}
+				console.log(query)
+			}
 		}else{
 			var target=""
 			if(this.config?.targetpattern){
