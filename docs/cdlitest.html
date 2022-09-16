@@ -35,8 +35,8 @@
           dataSources: [
             'Wikidata',
 			{ source: 'WikidataLexeme', name: 'WD Lexeme', wordformmode:false },
-			{ source: 'WikidataLexeme', name: 'WD Lexeme Regex', wordformmode:false, normpattern:/[\[\]\(\),\.#!\?\}\{]/g, targetpattern:""},
-			{ source: 'WikidataLexeme', name: 'WD Lexeme CB', wordformmode:false, normpattern:function(query){ query=query.replaceAll("š","sz"); query=query.replaceAll(/[\[\]\(\),\.#!\?\}\{]/g,""); console.log(query); return query}, targetpattern:""},
+			{ source: 'WikidataLexeme', name: 'WD Lexeme Regex', matchHTML:true, wordformmode:false, normpattern:[{"from":/[\[\],\.#!\?]/g,"to":""},{"from":"<sup>","to":"{"},{"from":"</sup>","to":"}"}]},
+			{ source: 'WikidataLexeme', name: 'WD Lexeme CB', matchHTML: true, wordformmode:false, normpattern:function(query){ query=query.replaceAll("</sup>","}"); query=query.replaceAll("<sup>","{"); query=query.replaceAll("š","sz"); query=query.replaceAll(/[\[\],\.#!\?]/g,""); console.log(query); return query}, targetpattern:""},	
 			{ source: 'WikidataLexeme', name: 'WD Lexeme Wordform', wordformmode:true, normpattern:/[\[\]\(\),\.#!\?\}\{]/g},
             { source: 'Wikidata', name: 'WD People', filter: 'Q5' }, // "human"
             // { source: 'Wikidata', name: 'WD Works', filter: 'Q7725634' }, // "literary works"
