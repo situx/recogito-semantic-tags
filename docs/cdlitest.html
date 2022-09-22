@@ -40,6 +40,7 @@
 									myatt=$(this).attr("title")
 									if (typeof myatt === 'undefined' || myatt === false) {
 										wordInformationFromWikidata("sux",$(this).text(),$(this))
+										$(this).trigger('hover')
 									}							
 					},
 					function() { $('#word').text(''); $(this).css('background-color',''); }
