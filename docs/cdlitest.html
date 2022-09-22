@@ -89,13 +89,18 @@
 			wordinfocache[word]=word+" not found in Wikidata"
 		}else{
 			thetitle="<ul>"
-			thetitletext=""
+			thetitletext={}
 			for(item in data){
 				thetitle+="<li><a href=\""+data[item]["l"]+"\">"+data[item]["lemma"]+"</a> (<a href=\""+data[item]["senseval"]+"\">"+data[item]["senselabel"]+"</a>)</li>"
-				thetitletext+=data[item]["lemma"]+" ("+data[item]["senselabel"]+") \n"
+				thetitletext[data[item]["lemma"]+" ("+data[item]["senselabel"]+") \n"]=true
 			}
 			thetitle+="</ul>"
-			spanitem.attr("title",thetitletext.trim())
+			thetext=""
+			console.log
+			for(textpart in thetitletext){
+				thetext+=textpart
+			}
+			spanitem.attr("title",thetext.trim())
 			wordinfocache[word]=thetitletext
 		}	
 	}
