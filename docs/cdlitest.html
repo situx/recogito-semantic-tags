@@ -1,4 +1,4 @@
-<!doctype html><html><head><meta charset="utf-8"/><title>RecogitoJS | Semantic Tags</title><link href="https://fonts.googleapis.com/css?family=Lato&display=swap" rel="stylesheet"><link href="https://cdn.jsdelivr.net/npm/@recogito/recogito-js@1.7.1/dist/recogito.min.css" rel="stylesheet"><script src="https://cdn.jsdelivr.net/npm/@recogito/recogito-js@1.7.1/dist/recogito.min.js"></script><script src="recogito-semantic-tags.min.js"></script><script src="https://code.jquery.com/jquery-3.6.1.min.js" integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous"></script><style>html, body {
+<!doctype html><html><head><meta charset="utf-8"/><title>RecogitoJS | Semantic Tags</title><link href="https://fonts.googleapis.com/css?family=Lato&display=swap" rel="stylesheet"><link href="https://cdn.jsdelivr.net/npm/@recogito/recogito-js@1.7.1/dist/recogito.min.css" rel="stylesheet"><script src="https://cdn.jsdelivr.net/npm/@recogito/recogito-js@1.7.1/dist/recogito.min.js"></script><script src="recogito-semantic-tags.min.js"></script><script src="https://code.jquery.com/jquery-3.6.1.min.js" integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous"></script><script src="https://cdn.jsdelivr.net/npm/d3-sparql@2.0.0/build/d3-sparql.min.js"></script><style>html, body {
         padding:10px 20px;
         margin:0;
       }
@@ -21,10 +21,74 @@
       function loadText(){
             cdlinumber=$('#cdlinumber').val()
             $.get( "https://cdli.mpiwg-berlin.mpg.de/artifacts/"+cdlinumber.replace("P","")+"/inscription/atf", function( data ) {
-                $('#cdlitext').html(data.replaceAll("\n","<br>"))
-                loadRecogito()
+				$('#cdlitext').html(data.replaceAll("\n","<br>"))
+				$('p').each(function() {
+					var $this = $(this);
+					result=""
+					splitted=$this.html().toString().split(" ")
+					for(word in splitted){
+						result+="<span>"+splitted[word]+"</span><span>$</span>"
+					}
+					$this.html(result);
+					loadRecogito()
+					$this.html($this.html().replaceAll("<span>$</span>","<span>&nbsp;</span>"))
+				});
+                
+				// bind to each span
+				$('p span').hover(
+					function() { $('#word').text($(this).css('background-color','#ffff66').text())
+									myatt=$(this).attr("title")
+									if (typeof myatt === 'undefined' || myatt === false) {
+										wordInformationFromWikidata("sux",$(this).text(),$(this))
+									}							
+					},
+					function() { $('#word').text(''); $(this).css('background-color',''); }
+				);
+				
+                
             });
       }
+	  
+	function wordInformationFromWikidata(lang,word,spanitem){
+        query=word	
+		limit=5
+		var sparql = `
+			  SELECT DISTINCT ?l ?lf ?senseval ?senselabel ?lfgram ?gflabel (GROUP_CONCAT(DISTINCT ?lemmaa; separator=" / ") as ?lemma) WHERE {
+				BIND(LCASE("${query}"@${lang}) as ?term)
+				{?lang wdt:P218 "${lang}" . } UNION {?lang wdt:P219 "${lang}" . }
+				?l rdf:type ontolex:LexicalEntry ;
+				   dct:language ?lang ;
+				   wikibase:lemma ?lemmaa;
+				   ontolex:lexicalForm ?lf .
+				?lf ontolex:representation ?rep .
+				OPTIONAL {?lf wikibase:grammaticalFeature ?lfgram . ?lfgram rdfs:label ?gflabel . FILTER((LANG(?gflabel))= "en")}
+				?l ontolex:sense ?sense . ?sense wdt:P5137 ?senseval . OPTIONAL { ?senseval rdfs:label ?senselabel . FILTER((LANG(?senselabel))= "en") }        
+				FILTER(str(?rep)=lcase("${query}"))       
+			  }
+			  GROUP BY ?l ?lf ?senseval ?senselabel ?lfgram ?gflabel
+			  ORDER BY ?l ?lfgram ?sense ?senselabel 
+			  LIMIT ${limit}
+			`;
+		  //sparql=sparql.replaceAll("${query}",word)
+		  wikidataUrl = 'https://query.wikidata.org/sparql'
+		  d3.sparql(wikidataUrl, sparql).then((data) => {
+		    //console.log(data); 
+			if(data.length==0){
+				spanitem.attr("title",word+" not found in Wikidata")
+			}else{
+				thetitle="<ul>"
+				thetitletext=""
+				for(item in data){
+					thetitle+="<li><a href=\""+data[item]["l"]+"\">"+data[item]["lemma"]+"</a> (<a href=\""+data[item]["senseval"]+"\">"+data[item]["senselabel"]+"</a>)</li>"
+					thetitletext+=data[item]["lemma"]+" ("+data[item]["senselabel"]+") \n"
+				}
+				thetitle+="</ul>"
+				spanitem.attr("title",thetitletext.trim())
+			}
+		  })
+	}
+	  
+	  
 
       function loadRecogito(){
         // Configuration options for the semantic tag widget
@@ -35,8 +99,8 @@
           dataSources: [
             'Wikidata',
 			{ source: 'WikidataLexeme', name: 'WD Lexeme', wordformmode:false },
-			{ source: 'WikidataLexeme', name: 'WD Lexeme Regex', matchHTML:true, wordformmode:false, normpattern:[{"from":/[\[\],\.#!\?]/g,"to":""},{"from":"<sup>","to":"{"},{"from":"</sup>","to":"}"}]},
-			{ source: 'WikidataLexeme', name: 'WD Lexeme CB', matchHTML: true, wordformmode:false, normpattern:function(query){ query=query.replaceAll("</sup>","}"); query=query.replaceAll("<sup>","{"); query=query.replaceAll("š","sz"); query=query.replaceAll(/[\[\],\.#!\?]/g,""); console.log(query); return query}, targetpattern:""},	
+			{ source: 'WikidataLexeme', name: 'WD Lexeme Regex', wordformmode:false, normpattern:/[\[\]\(\),\.#!\?\}\{]/g, targetpattern:""},
+			{ source: 'WikidataLexeme', name: 'WD Lexeme CB', wordformmode:false, normpattern:function(query){ query=query.replaceAll("š","sz"); query=query.replaceAll(/[\[\]\(\),\.#!\?\}\{]/g,""); console.log(query); return query}, targetpattern:""},
 			{ source: 'WikidataLexeme', name: 'WD Lexeme Wordform', wordformmode:true, normpattern:/[\[\]\(\),\.#!\?\}\{]/g},
             { source: 'Wikidata', name: 'WD People', filter: 'Q5' }, // "human"
             // { source: 'Wikidata', name: 'WD Works', filter: 'Q7725634' }, // "literary works"
