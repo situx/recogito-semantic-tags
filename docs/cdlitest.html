@@ -40,10 +40,11 @@
 					function() { $('#word').text($(this).css('background-color','#ffff66').text())
 						myatt=$(this).attr("title")
 						if (typeof myatt === 'undefined' || myatt === false) {
-							if($(this).text() in wordinfocache){
-								$(this).attr("title",wordinfocache[$(this).text()])
+							thetext=$(this).text().replaceAll(/[\[\]\(\),\.#!\?]/g,"")
+							if(thetext in wordinfocache){
+								$(this).attr("title",wordinfocache[thetext])
 							}else{
-								wordInformationFromWikidata("sux",$(this).text(),$(this))							
+								wordInformationFromWikidata("sux",thetext,$(this))							
 							}
 							$(this).trigger('hover')
 						}							
@@ -111,9 +112,9 @@
           dataSources: [
             'Wikidata',
 			{ source: 'WikidataLexeme', name: 'WD Lexeme', wordformmode:false },
-			{ source: 'WikidataLexeme', name: 'WD Lexeme Regex', wordformmode:false, normpattern:/[\[\]\(\),\.#!\?\}\{]/g, targetpattern:""},
-			{ source: 'WikidataLexeme', name: 'WD Lexeme CB', wordformmode:false, normpattern:function(query){ query=query.replaceAll("š","sz"); query=query.replaceAll(/[\[\]\(\),\.#!\?\}\{]/g,""); console.log(query); return query}, targetpattern:""},
-			{ source: 'WikidataLexeme', name: 'WD Lexeme Wordform', wordformmode:true, normpattern:/[\[\]\(\),\.#!\?\}\{]/g},
+			{ source: 'WikidataLexeme', name: 'WD Lexeme Regex', wordformmode:false, normpattern:/[\[\]\(\),\.#!\?]/g, targetpattern:""},
+			{ source: 'WikidataLexeme', name: 'WD Lexeme CB', wordformmode:false, normpattern:function(query){ query=query.replaceAll("š","sz"); query=query.replaceAll(/[\[\]\(\),\.#!\?]/g,""); console.log(query); return query}, targetpattern:""},
+			{ source: 'WikidataLexeme', name: 'WD Lexeme Wordform', wordformmode:true, normpattern:/[\[\]\(\),\.#!\?]/g},
             { source: 'Wikidata', name: 'WD People', filter: 'Q5' }, // "human"
             // { source: 'Wikidata', name: 'WD Works', filter: 'Q7725634' }, // "literary works"
             'VIAF',
