@@ -18,6 +18,7 @@
 	  Load a CDLI Text by entering a CDLI number: P<input type="number" id="cdlinumber" value="123456"><button id="loadtext" onclick="loadText()">Load</button>
 	  <p id="cdlitext"></p>
       <script>
+	  var wordinfocache={}
       function loadText(){
             cdlinumber=$('#cdlinumber').val()
             $.get( "https://cdli.mpiwg-berlin.mpg.de/artifacts/"+cdlinumber.replace("P","")+"/inscription/atf", function( data ) {
@@ -37,11 +38,15 @@
 				// bind to each span
 				$('p span').hover(
 					function() { $('#word').text($(this).css('background-color','#ffff66').text())
-									myatt=$(this).attr("title")
-									if (typeof myatt === 'undefined' || myatt === false) {
-										wordInformationFromWikidata("sux",$(this).text(),$(this))
-										$(this).trigger('hover')
-									}							
+						myatt=$(this).attr("title")
+						if (typeof myatt === 'undefined' || myatt === false) {
+							if($(this).text() in wordinfocache){
+								$(this).attr("title",wordinfocache[$(this).text()])
+							}else{
+								wordInformationFromWikidata("sux",$(this).text(),$(this))							
+							}
+							$(this).trigger('hover')
+						}							
 					},
 					function() { $('#word').text(''); $(this).css('background-color',''); }
 				);
@@ -49,7 +54,24 @@
                 
             });
       }
-	  
+	 
+	function formatPopup(data,spanitem,word){
+		if(data.length==0){
+			spanitem.attr("title",word+" not found in Wikidata")
+			wordinfocache[word]=word+" not found in Wikidata"
+		}else{
+			thetitle="<ul>"
+			thetitletext=""
+			for(item in data){
+				thetitle+="<li><a href=\""+data[item]["l"]+"\">"+data[item]["lemma"]+"</a> (<a href=\""+data[item]["senseval"]+"\">"+data[item]["senselabel"]+"</a>)</li>"
+				thetitletext+=data[item]["lemma"]+" ("+data[item]["senselabel"]+") \n"
+			}
+			thetitle+="</ul>"
+			spanitem.attr("title",thetitletext.trim())
+			wordinfocache[word]=thetitletext
+		}	
+	}
+	 
 	function wordInformationFromWikidata(lang,word,spanitem){
         query=word	
 		limit=5
@@ -73,19 +95,8 @@
 		  //sparql=sparql.replaceAll("${query}",word)
 		  wikidataUrl = 'https://query.wikidata.org/sparql'
 		  d3.sparql(wikidataUrl, sparql).then((data) => {
-		    //console.log(data); 
-			if(data.length==0){
-				spanitem.attr("title",word+" not found in Wikidata")
-			}else{
-				thetitle="<ul>"
-				thetitletext=""
-				for(item in data){
-					thetitle+="<li><a href=\""+data[item]["l"]+"\">"+data[item]["lemma"]+"</a> (<a href=\""+data[item]["senseval"]+"\">"+data[item]["senselabel"]+"</a>)</li>"
-					thetitletext+=data[item]["lemma"]+" ("+data[item]["senselabel"]+") \n"
-				}
-				thetitle+="</ul>"
-				spanitem.attr("title",thetitletext.trim())
-			}
+		    //console.log(data);
+			formatPopup(data,spanitem,word)
 		  })
 	}
 	  
