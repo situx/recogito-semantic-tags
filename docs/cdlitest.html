@@ -1,4 +1,4 @@
-<!doctype html><html><head><meta charset="utf-8"/><title>RecogitoJS | Semantic Tags</title><link href="https://fonts.googleapis.com/css?family=Lato&display=swap" rel="stylesheet"><link href="https://cdn.jsdelivr.net/npm/@recogito/recogito-js@1.7.1/dist/recogito.min.css" rel="stylesheet"><script src="https://cdn.jsdelivr.net/npm/@recogito/recogito-js@1.7.1/dist/recogito.min.js"></script><script src="recogito-semantic-tags.min.js"></script><script src="https://code.jquery.com/jquery-3.6.1.min.js" integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous"></script><script src="https://cdn.jsdelivr.net/npm/d3-sparql@2.0.0/build/d3-sparql.min.js"></script><style>html, body {
+<!doctype html><html><head><meta charset="utf-8"/><title>RecogitoJS | Semantic Tags</title><link href="https://fonts.googleapis.com/css?family=Lato&display=swap" rel="stylesheet"><link href="https://cdn.jsdelivr.net/npm/@recogito/recogito-js@1.7.1/dist/recogito.min.css" rel="stylesheet"><script src="https://cdn.jsdelivr.net/npm/@recogito/recogito-js@1.7.1/dist/recogito.min.js"></script><script src="nuolenna.js"></script><script src="recogito-semantic-tags.min.js"></script><script src="https://code.jquery.com/jquery-3.6.1.min.js" integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous"></script><script src="https://cdn.jsdelivr.net/npm/d3-sparql@2.0.0/build/d3-sparql.min.js"></script><style>html, body {
         padding:10px 20px;
         margin:0;
       }
@@ -16,22 +16,49 @@
         line-height:27px;
       }</style><script defer="defer" src="recogito-semantic-tags.min.js"></script></head><body><div id="content" class="plaintext"><h1>CDLI Semantic Tag Test</h1>
 	  Load a CDLI Text by entering a CDLI number: P<input type="number" id="cdlinumber" value="123456"><button id="loadtext" onclick="loadText()">Load</button>
-	  <p id="cdlitext"></p>
+	  <div>
+	  <p id="cdlitext" style="width:50%;float:left"></p><p id="cdlitextcunei" style="width:50%;float:right"></p>
+	  </div>
       <script>
 	  var wordinfocache={}
       function loadText(){
             cdlinumber=$('#cdlinumber').val()
             $.get( "https://cdli.mpiwg-berlin.mpg.de/artifacts/"+cdlinumber.replace("P","")+"/inscription/atf", function( data ) {
-				$('#cdlitext').html(data.replaceAll("\n","<br>"))
+				$('#cdlitext').html(data.replaceAll("\n","<br>"))							
+				$('#cdlitextcunei').html(data.replaceAll("\n","<br>"))
 				$('p').each(function() {
 					var $this = $(this);
 					result=""
 					splitted=$this.html().toString().split(" ")
-					for(word in splitted){
-						result+="<span>"+splitted[word]+"</span><span>$</span>"
+					if($this.attr('id').toString().includes("cunei")){
+						splittedcunei=""
+						for(word in splitted){
+							if(word!=""){
+								splittedcunei+="<span>"
+								wordsplit=splitted[word].replaceAll("{","-").replaceAll("}","-").split("-")
+								console.log(wordsplit)
+								for(chara in wordsplit){
+									repchara=wordsplit[chara].replaceAll(/[\[\],\.#!\?]/g,"").replaceAll("sz","š").replaceAll("1","₁").replaceAll("2","₂").replaceAll("3","₃").replaceAll("4","₄").replaceAll("5","₅").replaceAll("6","₆").replaceAll("7","₇").replaceAll("8","₈").replaceAll("9","₉").replaceAll("0","₀")
+									repchara=repchara.replaceAll("₁(","1(").replaceAll("₂(","2(").replaceAll("₃(","3(").replaceAll("₄(","4(").replaceAll("₅(","5(").replaceAll("₆(","6(").replaceAll("₇(","7(").replaceAll("₈(","8(").replaceAll("₉(","9(").replaceAll("₀(","0(")
+									console.log(repchara)
+									if(repchara in nuolenna){
+										console.log(repchara+" - "+nuolenna[repchara])
+										splittedcunei+=nuolenna[repchara]
+									}else{
+										splittedcunei+=wordsplit[chara]
+									}											
+								}
+								splittedcunei+="</span><span>$</span>"
+							}
+						}
+						$this.html(splittedcunei);
+					}else{
+						for(word in splitted){
+							result+="<span>"+splitted[word]+"</span><span>$</span>"
+						}
+						$this.html(result);
 					}
-					$this.html(result);
-					loadRecogito()
+					loadRecogito($this.attr('id').toString())
 					$this.html($this.html().replaceAll("<span>$</span>","<span>&nbsp;</span>"))
 				});
                 
@@ -40,7 +67,7 @@
 					function() { $('#word').text($(this).css('background-color','#ffff66').text())
 						myatt=$(this).attr("title")
 						if (typeof myatt === 'undefined' || myatt === false) {
-							thetext=$(this).text().replaceAll(/[\[\]\(\),\.#!\?]/g,"")
+							thetext=$(this).text().replaceAll(/[\[\],\.#!\?]/g,"")
 							if(thetext in wordinfocache){
 								$(this).attr("title",wordinfocache[thetext])
 							}else{
@@ -103,7 +130,7 @@
 	  
 	  
 
-      function loadRecogito(){
+      function loadRecogito(paraid){
         // Configuration options for the semantic tag widget
         var widgetConfig = {
           // List of data sources, strings for built-in connectors.
@@ -126,18 +153,23 @@
           availableLanguages: [ 'sux','en', 'fr', 'es' ],
           limit: 20,      // Search result page length (default 20)
         };
-
-        var r = Recogito.init({
-          content: 'cdlitext',
+		if(paraid.toString().includes("cunei")){
+		        var r2 = Recogito.init({
+          content: paraid,
       	  widgets: [
             'COMMENT',
             recogito.SemanticTags(widgetConfig)
           ]
         });
-
-        r.on('createAnnotation', function(a) {
-          console.log('created', a);
+		}else{
+		        var r = Recogito.init({
+          content: paraid,
+      	  widgets: [
+            'COMMENT',
+            recogito.SemanticTags(widgetConfig)
+          ]
         });
+		}
       }
-      window.onload =loadRecogito()
+      window.onload =loadText()
       </script></div></body></html>
