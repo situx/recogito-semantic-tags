@@ -16,14 +16,30 @@
         line-height:27px;
       }</style><script defer="defer" src="recogito-semantic-tags.min.js"></script></head><body><div id="content" class="plaintext"><h1>CDLI Semantic Tag Test</h1>
 	  Load a CDLI Text by entering a CDLI number: P<input type="number" id="cdlinumber" value="123456"><button id="loadtext" onclick="loadText()">Load</button>
+          <br/><button id="owntext" onclick="textArea()">Enter own Text in CDLI ATF</button><button id="owntext" onclick="useText()">Save</button>
 	  <div>
 	  <p id="cdlitext" style="width:50%;float:left"></p><p id="cdlitextcunei" style="width:50%;float:right"></p>
 	  </div>
+
       <script>
+	  function textArea(){
+		$('#cdlitext').html("")
+		$('#cdlitextcunei').html("")
+		$('#cdlitext').attr("contenteditable",true);
+		$('#cdlitext').css('border', '1px solid black');
+	  }
+	   function useText(){
+		$('#cdlitextcunei').html("")
+		$('#cdlitext').attr("contenteditable",false);
+		$('#cdlitext').css('border', 'none');
+		initializeText($('#cdlitext').text())	
+	  }
 	  var wordinfocache={}
       function loadText(){
             cdlinumber=$('#cdlinumber').val()
             $.get( "https://cdli.earth/artifacts/"+cdlinumber.replace("P","")+"/inscription/atf", function( data ) {
+				initializeText(data)
+			/*
 				$('#cdlitext').html(data.replaceAll("\n","<br>"))							
 				$('#cdlitextcunei').html(data.replaceAll("\n","<br>"))
 				$('p').each(function() {
@@ -79,9 +95,67 @@
 					function() { $('#word').text(''); $(this).css('background-color',''); }
 				);
 				
-                
+                */
             });
       }
+
+      function initializeText(data){
+				$('#cdlitext').html(data.replaceAll("\n","<br>"))							
+				$('#cdlitextcunei').html(data.replaceAll("\n","<br>"))
+				$('p').each(function() {
+					var $this = $(this);
+					result=""
+					splitted=$this.html().toString().split(" ")
+					if($this.attr('id').toString().includes("cunei")){
+						splittedcunei=""
+						for(word in splitted){
+							if(word!=""){
+								splittedcunei+="<span>"
+								wordsplit=splitted[word].replaceAll("{","-").replaceAll("}","-").split("-")
+								console.log(wordsplit)
+								for(chara in wordsplit){
+									repchara=wordsplit[chara].replaceAll(/[\[\],\.#!\?]/g,"").replaceAll("sz","š").replaceAll("1","₁").replaceAll("2","₂").replaceAll("3","₃").replaceAll("4","₄").replaceAll("5","₅").replaceAll("6","₆").replaceAll("7","₇").replaceAll("8","₈").replaceAll("9","₉").replaceAll("0","₀")
+									repchara=repchara.replaceAll("₁(","1(").replaceAll("₂(","2(").replaceAll("₃(","3(").replaceAll("₄(","4(").replaceAll("₅(","5(").replaceAll("₆(","6(").replaceAll("₇(","7(").replaceAll("₈(","8(").replaceAll("₉(","9(").replaceAll("₀(","0(")
+									console.log(repchara)
+									if(repchara in nuolenna){
+										console.log(repchara+" - "+nuolenna[repchara])
+										splittedcunei+=nuolenna[repchara]
+									}else{
+										splittedcunei+=wordsplit[chara]
+									}											
+								}
+								splittedcunei+="</span><span>$</span>"
+							}
+						}
+						$this.html(splittedcunei);
+					}else{
+						for(word in splitted){
+							result+="<span>"+splitted[word]+"</span><span>$</span>"
+						}
+						$this.html(result);
+					}
+					loadRecogito($this.attr('id').toString())
+					$this.html($this.html().replaceAll("<span>$</span>","<span>&nbsp;</span>"))
+				});
+                
+				// bind to each span
+				$('p span').hover(
+					function() { $('#word').text($(this).css('background-color','#ffff66').text())
+						myatt=$(this).attr("title")
+						if (typeof myatt === 'undefined' || myatt === false) {
+							thetext=$(this).text().replaceAll(/[\[\],\.#!\?]/g,"")
+							if(thetext in wordinfocache){
+								$(this).attr("title",wordinfocache[thetext])
+							}else{
+								wordInformationFromWikidata("sux",thetext,$(this))							
+							}
+							$(this).trigger('hover')
+						}							
+					},
+					function() { $('#word').text(''); $(this).css('background-color',''); }
+				);
+
+	}
 	 
 	function formatPopup(data,spanitem,word){
 		if(data.length==0){
