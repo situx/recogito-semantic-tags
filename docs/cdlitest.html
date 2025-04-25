@@ -23,7 +23,7 @@
 	  var wordinfocache={}
       function loadText(){
             cdlinumber=$('#cdlinumber').val()
-            $.get( "https://cdli.earth.de/artifacts/"+cdlinumber.replace("P","")+"/inscription/atf", function( data ) {
+            $.get( "https://cdli.earth/artifacts/"+cdlinumber.replace("P","")+"/inscription/atf", function( data ) {
 				$('#cdlitext').html(data.replaceAll("\n","<br>"))							
 				$('#cdlitextcunei').html(data.replaceAll("\n","<br>"))
 				$('p').each(function() {
