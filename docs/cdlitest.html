@@ -46,65 +46,9 @@
 	  var wordinfocache={}
       function loadText(){
             cdlinumber=$('#cdlinumber').val()
+			$('#cdlitext').css('border', 'none');
             $.get( "https://cdli.earth/artifacts/"+cdlinumber.replace("P","")+"/inscription/atf", function( data ) {
 				initializeText(data)
-			/*
-				$('#cdlitext').html(data.replaceAll("\n","<br>"))							
-				$('#cdlitextcunei').html(data.replaceAll("\n","<br>"))
-				$('p').each(function() {
-					var $this = $(this);
-					result=""
-					splitted=$this.html().toString().split(" ")
-					if($this.attr('id').toString().includes("cunei")){
-						splittedcunei=""
-						for(word in splitted){
-							if(word!=""){
-								splittedcunei+="<span>"
-								wordsplit=splitted[word].replaceAll("{","-").replaceAll("}","-").split("-")
-								console.log(wordsplit)
-								for(chara in wordsplit){
-									repchara=wordsplit[chara].replaceAll(/[\[\],\.#!\?]/g,"").replaceAll("sz","š").replaceAll("1","₁").replaceAll("2","₂").replaceAll("3","₃").replaceAll("4","₄").replaceAll("5","₅").replaceAll("6","₆").replaceAll("7","₇").replaceAll("8","₈").replaceAll("9","₉").replaceAll("0","₀")
-									repchara=repchara.replaceAll("₁(","1(").replaceAll("₂(","2(").replaceAll("₃(","3(").replaceAll("₄(","4(").replaceAll("₅(","5(").replaceAll("₆(","6(").replaceAll("₇(","7(").replaceAll("₈(","8(").replaceAll("₉(","9(").replaceAll("₀(","0(")
-									console.log(repchara)
-									if(repchara in nuolenna){
-										console.log(repchara+" - "+nuolenna[repchara])
-										splittedcunei+=nuolenna[repchara]
-									}else{
-										splittedcunei+=wordsplit[chara]
-									}											
-								}
-								splittedcunei+="</span><span>$</span>"
-							}
-						}
-						$this.html(splittedcunei);
-					}else{
-						for(word in splitted){
-							result+="<span>"+splitted[word]+"</span><span>$</span>"
-						}
-						$this.html(result);
-					}
-					loadRecogito($this.attr('id').toString())
-					$this.html($this.html().replaceAll("<span>$</span>","<span>&nbsp;</span>"))
-				});
-                
-				// bind to each span
-				$('p span').hover(
-					function() { $('#word').text($(this).css('background-color','#ffff66').text())
-						myatt=$(this).attr("title")
-						if (typeof myatt === 'undefined' || myatt === false) {
-							thetext=$(this).text().replaceAll(/[\[\],\.#!\?]/g,"")
-							if(thetext in wordinfocache){
-								$(this).attr("title",wordinfocache[thetext])
-							}else{
-								wordInformationFromWikidata("sux",thetext,$(this))							
-							}
-							$(this).trigger('hover')
-						}							
-					},
-					function() { $('#word').text(''); $(this).css('background-color',''); }
-				);
-				
-                */
             });
       }
 
