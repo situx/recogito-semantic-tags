@@ -8,9 +8,18 @@
         margin-top:30px;
         margin-bottom:20px;
       }
+	  
+	  left {
+		width:50%;
+		float:left;
+	  }
+	  
+	  right{
+		width:50%;
+		float:right;
+	  }
 
-      #content {
-        
+      #content {      
         font-family:'Lato', sans-serif;
         font-size:17px;
         line-height:27px;
@@ -18,7 +27,7 @@
 	  Load a CDLI Text by entering a CDLI number: P<input type="number" id="cdlinumber" value="123456"><button id="loadtext" onclick="loadText()">Load</button>
           <br/><button id="owntext" onclick="textArea()">Enter own Text in CDLI ATF</button><button id="owntext" onclick="useText()">Save</button>
 	  <div>
-	  <p id="cdlitext" style="width:50%;float:left"></p><p id="cdlitextcunei" style="width:50%;float:right"></p>
+	  <p id="cdlitext" class="left"></p><p id="cdlitextcunei" class="right"></p>
 	  </div>
 
       <script>
