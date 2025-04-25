@@ -1,5 +1,5 @@
 # Recogito Semantic Tags Widget
-
+ 
 A semantic tagging widget for [RecogitoJS](https://github.com/recogito/recogito-js)
 and [Annotorious](https://github.com/recogito/annotorious). Live demo available
 [here](https://recogito-semantic-tags.netlify.app/). Detailed documentation is
