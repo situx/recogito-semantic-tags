@@ -154,7 +154,7 @@
 				?lf ontolex:representation ?rep .
 				OPTIONAL {?lf wikibase:grammaticalFeature ?lfgram . ?lfgram rdfs:label ?gflabel . FILTER((LANG(?gflabel))= "en")}
 				?l ontolex:sense ?sense . ?sense wdt:P5137 ?senseval . OPTIONAL { ?senseval rdfs:label ?senselabel . FILTER((LANG(?senselabel))= "en") }        
-				FILTER(str(?rep)=lcase("${query}"))       
+				FILTER(lcase(str(?rep))=lcase("${query}"))       
 			  }
 			  GROUP BY ?l ?lf ?senseval ?senselabel ?lexcatlabel ?lfgram ?gflabel
 			  ORDER BY ?l ?lfgram ?sense ?senselabel 
