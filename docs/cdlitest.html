@@ -69,6 +69,7 @@
 								for(chara in wordsplit){
 									repchara=wordsplit[chara].replaceAll(/[\[\],\.#!\?]/g,"").replaceAll("sz","š").replaceAll("1","₁").replaceAll("2","₂").replaceAll("3","₃").replaceAll("4","₄").replaceAll("5","₅").replaceAll("6","₆").replaceAll("7","₇").replaceAll("8","₈").replaceAll("9","₉").replaceAll("0","₀")
 									repchara=repchara.replaceAll("₁(","1(").replaceAll("₂(","2(").replaceAll("₃(","3(").replaceAll("₄(","4(").replaceAll("₅(","5(").replaceAll("₆(","6(").replaceAll("₇(","7(").replaceAll("₈(","8(").replaceAll("₉(","9(").replaceAll("₀(","0(")
+									repchara=repchara.toLowerCase()
 									console.log(repchara)
 									if(repchara in nuolenna){
 										console.log(repchara+" - "+nuolenna[repchara])
