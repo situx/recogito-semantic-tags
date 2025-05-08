@@ -146,7 +146,9 @@ font-family: CuneiformComposite;
 
       <script>
 	  function updateFont(){
-	  	$('#cdlitextcunei').style="font-family:"+$('#font').val()
+		$("#cdlitextcunei").removeClass();
+		$('#cdlitextcunei').addClass("right")
+	  	$('#cdlitextcunei').addClass($('#font').val())
 	  }
 	  function textArea(){
 		if(!document.getElementById("cdlitext").isContentEditable){
