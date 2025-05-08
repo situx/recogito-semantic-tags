@@ -184,12 +184,12 @@ font-family: CuneiformComposite;
       }
 
       function initializeText(data){
-				$('#cdlitext').html(data.replaceAll("\n","<br>"))							
+				$('#cdlitext').html(data.replaceAll("\n","<br>").replaceAll("&nbsp;"," "))							
 				$('#cdlitextcunei').html(data.replaceAll("\n","<br>"))
 				$('p').each(function() {
 					var $this = $(this);
 					result=""
-					splitted=$this.html().toString().split(" ")
+					splitted=$this.html().toString().replaceAll("&nbsp;"," ").split(" ")
 					if($this.attr('id').toString().includes("cunei")){
 						splittedcunei=""
 						for(word in splitted){
