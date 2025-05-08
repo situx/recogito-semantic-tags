@@ -48,7 +48,7 @@
 		$('#cdlitext').css('border', '1px solid black');
 	  }
 	  function editText(){
-		$('#cdlitext').html(data.replaceAll("<br>","\n"))							
+		$('#cdlitext').html($('#cdlitext').html().replaceAll("<br>","\n"))							
 		$('#cdlitext').attr("contenteditable",true);
 		$('#cdlitext').css('border', '1px solid black');
 	  }
