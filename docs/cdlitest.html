@@ -187,7 +187,8 @@
 		  d3.sparql(wikidataUrl, sparql).then((data) => {
 		    //console.log(data);
 			if(data.length==0 && lang.length>1){
-				wordInformationFromWikidata(lang.shift(),word,spanitem)
+				lang.shift()
+				wordInformationFromWikidata(lang,word,spanitem)
 			}else{
 				formatPopup(data,spanitem,word)
 			}
