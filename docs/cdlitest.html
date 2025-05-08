@@ -149,7 +149,7 @@ font-family: CuneiformComposite;
 	  	$('#cdlitextcunei').style="font-family:"+$('#font').val()
 	  }
 	  function textArea(){
-		if(!document.getElementById("cdlitext").contenteditable){
+		if(!document.getElementById("cdlitext").isContentEditable){
 			$('#cdlitext').html("")
 			$('#cdlitextcunei').html("")
 			$('#cdlitext').attr("contenteditable",true);
@@ -158,7 +158,7 @@ font-family: CuneiformComposite;
 		}
 	  }
 	  function editText(){
-		if(!document.getElementById("cdlitext").contenteditable){
+		if(!document.getElementById("cdlitext").isContentEditable){
 			$('#cdlitext').html($('#cdlitext').html().replaceAll("<br>","\n"))							
 			$('#cdlitext').attr("contenteditable",true);
 			$('#owntext').removeAttr("disabled");
@@ -166,7 +166,7 @@ font-family: CuneiformComposite;
 		}
 	  }
 	   function useText(){
-		if(document.getElementById("cdlitext").contenteditable){
+		if(document.getElementById("cdlitext").isContentEditable){
 			$('#cdlitextcunei').html("")
 			$('#cdlitext').attr("contenteditable",false);
 			$('#owntext').attr("disabled",true);
