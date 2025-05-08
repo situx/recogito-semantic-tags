@@ -42,21 +42,30 @@
 
       <script>
 	  function textArea(){
-		$('#cdlitext').html("")
-		$('#cdlitextcunei').html("")
-		$('#cdlitext').attr("contenteditable",true);
-		$('#cdlitext').css('border', '1px solid black');
+		if(!document.getElementById("cdlitext").contentEditable){
+			$('#cdlitext').html("")
+			$('#cdlitextcunei').html("")
+			$('#cdlitext').attr("contenteditable",true);
+			$('#owntext').attr("disabled",false);
+			$('#cdlitext').css('border', '1px solid black');		
+		}
 	  }
 	  function editText(){
-		$('#cdlitext').html($('#cdlitext').html().replaceAll("<br>","\n"))							
-		$('#cdlitext').attr("contenteditable",true);
-		$('#cdlitext').css('border', '1px solid black');
+		if(!document.getElementById("cdlitext").contentEditable){
+			$('#cdlitext').html($('#cdlitext').html().replaceAll("<br>","\n"))							
+			$('#cdlitext').attr("contenteditable",true);
+			$('#owntext').attr("disabled",false);
+			$('#cdlitext').css('border', '1px solid black');
+		}
 	  }
 	   function useText(){
-		$('#cdlitextcunei').html("")
-		$('#cdlitext').attr("contenteditable",false);
-		$('#cdlitext').css('border', 'none');
-		initializeText($('#cdlitext').text())	
+		if(document.getElementById("cdlitext").contentEditable){
+			$('#cdlitextcunei').html("")
+			$('#cdlitext').attr("contenteditable",false);
+			$('#owntext').attr("disabled",true);
+			$('#cdlitext').css('border', 'none');
+			initializeText($('#cdlitext').text())
+		}
 	  }
 	  var wordinfocache={}
       function loadText(){
