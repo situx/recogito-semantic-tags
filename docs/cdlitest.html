@@ -37,10 +37,26 @@
 	  Popup Language: <select id="popuplanguage"><option value="sux">Sumerian</option><option value="akk;sux">Akkadian</option></select>
           <br/><button id="owntext" onclick="textArea()">Enter own Text in ATF</button><button id="edittext" onclick="editText()">Edit Text</button><button id="owntext" onclick="useText()">Save</button>
 	  <div>
+          <p id="popuplang" class="left">Popup Language:<select id="popuplanguage"><option value="sux">Sumerian</option><option value="akk;sux">Akkadian</option></select></p>
+	   <p id="fontchooser" class="right">Font: <select id="font" onchange="updateFont()">
+		  <option value="cuneiformcomposite">Cuneiform Composite (Cuneiform Composite)</option>
+		  <option value="assurbanipal">Neo-Assyrian (Assurbanipal)</option>
+		  <option value="cuneiformna">Neo-Assyrian (CuneiformNA)</option>
+		  <option value="sinacherib">Neo-Assyrian (Sinacherib)</option>
+		  <option value="santakku">Cursive Old Babylonian (Santakku)</option>
+	  	  <option value="cuneiformob">Monumental Old Babylonian (CuneiformOB)</option>
+		  <option value="cuneiformob2">Monumental Old Babylonian (SantakkuM)</option>
+		  <option value="ullikummia">Hittite (UllikummiA)</option>
+		  <option value="ullikummib">Hittite (UllikummiB)</option>
+		  <option value="ullikummic">Hittite (UllikummiC)</option>  
+	  </select></p> 
 	  <p id="cdlitext" class="left" style="white-space: pre;"></p><p id="cdlitextcunei" class="right"></p>
 	  </div>
 
       <script>
+	  function updateFont(){
+	  	$('#cdlitextcunei').style="font-family:"+$('#font').val()
+	  }
 	  function textArea(){
 		if(!document.getElementById("cdlitext").contentEditable){
 			$('#cdlitext').html("")
